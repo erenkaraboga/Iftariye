@@ -1,8 +1,6 @@
 package com.erenkaraboga.prayer7
-
 import android.Manifest
 import android.content.Context
-import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
@@ -13,7 +11,6 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -23,37 +20,25 @@ import com.azan.astrologicalCalc.SimpleDate
 import com.google.android.gms.location.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.IOException
-import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
-
-
 class MainActivity : AppCompatActivity() {
-
-
-    private lateinit var image: ImageView
     private lateinit var saat: View
     lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     lateinit var locationRequest: LocationRequest
-
     private var PERMISSION_ID=100
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         saat=findViewById(R.id.davul2)
         animate()
         fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
          RequestPermission()
-
         button.setOnClickListener {
-
             getLastLocation()
             getNewLocation()
         }
-
         getLastLocation()
-
     }
 
 
@@ -63,6 +48,16 @@ class MainActivity : AppCompatActivity() {
              val sharedPreferences=this.getSharedPreferences("com.erenkaraboga.prayer7",Context.MODE_PRIVATE)
              if (isLocationEnabled()){
 
+                 if (ActivityCompat.checkSelfPermission(
+                         this,
+                         Manifest.permission.ACCESS_FINE_LOCATION
+                     ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                         this,
+                         Manifest.permission.ACCESS_COARSE_LOCATION
+                     ) != PackageManager.PERMISSION_GRANTED
+                 ) {
+                     return
+                 }
                  fusedLocationProviderClient.lastLocation.addOnCompleteListener { task ->
 
                       var location : Location?=task.result
@@ -101,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                           ogle.text="Öğle:  "+prayerTimes2.thuhr().toString()
 
                           //İkindi
-                          val location3 = com.azan.astrologicalCalc.Location(enlem, boylam, 2.1510, 0)
+                          val location3 = com.azan.astrologicalCalc.Location(enlem, boylam, 2.2510, 0)
                           val azan3 = Azan(location3, Method.KARACHI_HANAF)
                           val prayerTimes3=azan3.getPrayerTimes(today)
                           ikindi.text="İkindi:  "+prayerTimes3.assr().toString()
@@ -158,8 +153,6 @@ class MainActivity : AppCompatActivity() {
                               override fun onFinish() {
 
                                     textView8.text="Afiyet Olsun"
-
-
                               }
                           }.start()
 
@@ -189,15 +182,6 @@ class MainActivity : AppCompatActivity() {
                               textView2.text="Türkiye"
 
                           }
-
-                         /* finally {
-                              textView3.text="Türkiye"
-                              textView2.text="Türkiye"
-                          }*/
-
-
-
-
                       }
                   }
 
@@ -207,13 +191,8 @@ class MainActivity : AppCompatActivity() {
                    var boylam= sharedPreferences.getFloat("boylam",00.0f)
                    val today= SimpleDate(GregorianCalendar())
                    textView2.text="Turkey"
-
-
                  textView3.text=sharedPreferences.getString("sehir","Türkiye")
-
                  if (enlem!=00.0f){
-
-
                      //Imsak
                      val location6 = com.azan.astrologicalCalc.Location(enlem.toDouble() , boylam.toDouble(), 3.143, 0)
                      val azan6 = Azan(location6, Method.KARACHI_HANAF)
@@ -233,7 +212,7 @@ class MainActivity : AppCompatActivity() {
                      ogle.text="Öğle:  "+prayerTimes2.thuhr().toString()
 
                      //İkindi
-                     val location3 = com.azan.astrologicalCalc.Location(enlem.toDouble(), boylam.toDouble(), 2.1510, 0)
+                     val location3 = com.azan.astrologicalCalc.Location(enlem.toDouble(), boylam.toDouble(), 2.2510, 0)
                      val azan3 = Azan(location3, Method.KARACHI_HANAF)
                      val prayerTimes3=azan3.getPrayerTimes(today)
                      ikindi.text="İkindi:  "+prayerTimes3.assr().toString()
@@ -256,7 +235,6 @@ class MainActivity : AppCompatActivity() {
                      var year = today.year
                      var month= today.month
                      var day= today.day
-
 
                      val endDateDay = "$day.$month.$year ${aksam1}"
                      val format1 = SimpleDateFormat("dd.MM.yyyy hh:mm:ss",Locale.getDefault())
@@ -298,7 +276,6 @@ class MainActivity : AppCompatActivity() {
                          }
                      }.start()
 
-
                  }
                  else{
                      Toast.makeText(this,"Konumunuz Kapalı! Güncel Verileri Almak İçin Konumunuzu Açıp Güncelle Butonuna 1 Kez Tıklayınız" +
@@ -309,10 +286,7 @@ class MainActivity : AppCompatActivity() {
                      ikindi.text="İkindi: 00:00:00"
                      aksam.text="Akşam: 00:00:00"
                      yatsı.text="Yatsı: 00:00:00"
-
                  }
-
-
              }
          }else{
 
@@ -321,8 +295,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
     private fun getNewLocation(){
         locationRequest= LocationRequest()
         locationRequest.priority=LocationRequest.PRIORITY_HIGH_ACCURACY
@@ -330,12 +302,20 @@ class MainActivity : AppCompatActivity() {
         locationRequest.fastestInterval=0
         locationRequest.numUpdates=2
 
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+        }
         fusedLocationProviderClient!!.requestLocationUpdates(
 
                 locationRequest, locationCallBack, Looper.myLooper()
 
         )
-
 
     }
 
@@ -344,8 +324,6 @@ class MainActivity : AppCompatActivity() {
         override fun onLocationResult(p0: LocationResult) {
 
             var lastLocation:Location=p0.lastLocation
-
-
         }
     }
 
@@ -354,7 +332,6 @@ class MainActivity : AppCompatActivity() {
     private fun CheckPermission():Boolean{
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)== PackageManager.PERMISSION_GRANTED||
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)== PackageManager.PERMISSION_GRANTED){
-
             return true
         }
 
@@ -367,11 +344,7 @@ class MainActivity : AppCompatActivity() {
         ActivityCompat.requestPermissions(
                 this,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), PERMISSION_ID
-
-
         )
-
-
 
     }
 
@@ -379,30 +352,20 @@ class MainActivity : AppCompatActivity() {
 
         var locationManager:LocationManager=getSystemService(Context.LOCATION_SERVICE)as LocationManager
         return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)|| locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
-
-
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         if (requestCode==PERMISSION_ID){
             if (grantResults.isNotEmpty()&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
                 Log.d("Debug", "You Have a Permission")
-
             }
-
         }
-
-
     }
     fun animate(){
 
         val rotate= AnimationUtils.loadAnimation(this,R.anim.animate)
         saat.animation=rotate
-
-
     }
-
-
 }
 
 
